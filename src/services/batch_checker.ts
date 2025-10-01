@@ -9,7 +9,6 @@ export async function checkIsBatchAvailable() {
     conn = await pool.getConnection();
     const result = await conn.query(sql);
     const isAvailable = Number(result[0].is_available) > 0;
-    console.log(`[check] raw=${result[0].is_available}`);
     const ms = Date.now() - t0;
     console.log(`[check] source=${config.source} isAvailable=${isAvailable} time=${ms}ms`);
   

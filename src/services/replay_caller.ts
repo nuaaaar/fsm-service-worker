@@ -11,6 +11,7 @@ export async function runReplayBatch() {
 
   let conn;
   const t0 = Date.now();
+  const now = new Date(t0).toISOString();
 
   try {
     conn = await pool.getConnection();
@@ -26,10 +27,9 @@ export async function runReplayBatch() {
         : typeof lastEventId === "bigint"
         ? lastEventId.toString()
         : String(lastEventId);
-
     const ms = Date.now() - t0;
     console.log(
-      `[batch] source=${config.source} size=${config.batchSize} lease=${config.leaseSecs}s time=${ms}ms lastCheckpoint=${lastEventIdStr}`
+      `[batch] ${now} source=${config.source} size=${config.batchSize} lease=${config.leaseSecs}s time=${ms}ms lastCheckpoint=${lastEventIdStr}`
     );
   } catch (e: any) {
     if(e.code === "ER_DUP_ENTRY") {
