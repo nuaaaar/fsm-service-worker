@@ -2,16 +2,38 @@ import { pool } from "../db/pool";
 import { config } from "../config";
 
 export async function runReplayBatch() {
-  const sql = "CALL db_traccar.sp_replay_from_stage_worker(?, ?, ?)";
+  const callSql = "CALL db_traccar.sp_replay_from_stage_worker(?, ?, ?)";
+  const lastCheckpointSql = `
+    SELECT last_event_id 
+    FROM fsm_replay_checkpoint_sim 
+    WHERE source = ?
+  `;
+
   let conn;
   const t0 = Date.now();
+
   try {
     conn = await pool.getConnection();
-    await conn.query(sql, [config.batchSize, config.source, config.leaseSecs]);
+
+    await conn.query(callSql, [config.batchSize, config.source, config.leaseSecs]);
+
+    const rows = await conn.query(lastCheckpointSql, [config.source]);
+    const lastEventId = rows[0]?.last_event_id ?? null;
+
+    const lastEventIdStr =
+      lastEventId == null
+        ? "null"
+        : typeof lastEventId === "bigint"
+        ? lastEventId.toString()
+        : String(lastEventId);
+
     const ms = Date.now() - t0;
     console.log(
-      `[batch] source=${config.source} size=${config.batchSize} lease=${config.leaseSecs}s time=${ms}ms`
+      `[batch] source=${config.source} size=${config.batchSize} lease=${config.leaseSecs}s time=${ms}ms lastCheckpoint=${lastEventIdStr}`
     );
+  } catch (e) {
+    console.error("[batch] error:", e);
+    throw e;
   } finally {
     conn?.release();
   }
