@@ -31,7 +31,11 @@ export async function runReplayBatch() {
     console.log(
       `[batch] source=${config.source} size=${config.batchSize} lease=${config.leaseSecs}s time=${ms}ms lastCheckpoint=${lastEventIdStr}`
     );
-  } catch (e) {
+  } catch (e: any) {
+    if(e.code === "ER_DUP_ENTRY") {
+      console.warn("duplicate entry, ignored.");
+      return;
+    }
     console.error("[batch] error:", e);
     throw e;
   } finally {
