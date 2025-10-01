@@ -2,13 +2,14 @@ import { pool } from "../db/pool";
 import { config } from "../config";
 
 export async function checkIsBatchAvailable() {
-  const sql = "SELECT COUNT(1) as is_available FROM fsm_replay_stage WHERE checkpoint_id IS NULL LIMIT 1";
+  const sql = "SELECT COUNT(1) as is_available FROM fsm_replay_stage WHERE checkpoint_id IS NULL AND used_flag=0 LIMIT 1";
   let conn;
   const t0 = Date.now();
   try {
     conn = await pool.getConnection();
     const result = await conn.query(sql);
     const isAvailable = Number(result[0].is_available) > 0;
+    console.log(`[check] raw=${result[0].is_available}`);
     const ms = Date.now() - t0;
     console.log(`[check] source=${config.source} isAvailable=${isAvailable} time=${ms}ms`);
   
