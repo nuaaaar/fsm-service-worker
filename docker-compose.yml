@@ -1,0 +1,30 @@
+services:
+  worker-1:
+    build: .
+    restart: unless-stopped
+    init: true
+    ulimits:
+      memlock: -1
+    env_file: .env
+    environment:
+      - WORKER_SOURCE=worker-1
+  # worker-2:
+  #   build: .
+  #   restart: unless-stopped
+  #   init: true
+  #   ulimits:
+  #     memlock: -1
+  #   env_file: .env
+  #   environment:
+  #     - WORKER_SOURCE=worker-2
+  # worker-3:
+  #   build: .
+  #   restart: unless-stopped
+  #   init: true
+  #   ulimits:
+  #     memlock: -1
+  #   env_file: .env
+  #   environment:
+  #     - WORKER_SOURCE=worker-3
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"

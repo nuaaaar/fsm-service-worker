@@ -1,0 +1,14 @@
+{
+  "name": "fsm-service-worker",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "start": "bun src/worker.ts",
+    "dev": "bun --watch src/worker.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "mariadb": "^3.4.5"
+  },
+  "devDependencies": {}
+}
