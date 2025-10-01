@@ -1,12 +1,18 @@
+name: fsm
+
 services:
-  worker-1:
-    build: .
+  worker:
+    image: fsm-service-worker:latest  # pakai image hasil build
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: unless-stopped
     init: true
     ulimits:
       memlock: -1
     env_file: .env
     environment:
+      - NODE_ENV=production
       - WORKER_SOURCE=worker-1
   # worker-2:
   #   build: .

@@ -1,16 +1,22 @@
-# Dockerfile
-FROM oven/bun:alpine
-
+FROM oven/bun:alpine AS builder
 WORKDIR /app
-
-# Kalau nanti pakai native module, aktifkan baris di bawah:
-# RUN apk add --no-cache python3 make g++
 
 COPY package.json bun.lockb* ./
 RUN bun install --frozen-lockfile
 
 COPY . .
 
-# Worker tidak expose port
+# Build aplikasi (misal output ke /app/dist)
+RUN bun build src/worker.ts --outdir dist --target bun
+
+# Production image, hanya ambil hasil build
+FROM oven/bun:alpine
+WORKDIR /app
+
+COPY --from=builder /app/dist /app/dist
+COPY --from=builder /app/package.json /app/package.json
+
 ENV NODE_ENV=production
-CMD ["bun", "run", "start"]
+
+USER bun
+CMD ["bun", "run", "dist/worker.js"]
